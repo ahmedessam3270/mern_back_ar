@@ -4,9 +4,9 @@ const sharp = require("sharp");
 const bcrypt = require("bcryptjs");
 
 const factory = require("./handlersFactory");
-const ApiErorr = require("../utils/apiError");
 const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 const User = require("../models/userModel");
+const ApiError = require("../utils/apiError");
 
 // Upload single image
 exports.uploadUserImage = uploadSingleImage("profileImg");
@@ -61,32 +61,14 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
       new: true,
     }
   );
+
   if (!document) {
-    return next(new ApiErorr("User not found", 404));
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
   }
-  res.status(200).json({ status: "success", data: { document } });
+  res.status(200).json({ data: document });
 });
 
 exports.changeUserPassword = asyncHandler(async (req, res, next) => {
-  const document = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      password: await bcrypt.hash(req.body.password, 12),
-    },
-    {
-      new: true,
-    }
-  );
-  if (!document) {
-    return next(new ApiErorr("User not found", 404));
-  }
-  res.status(200).json({ status: "success", data: { document } });
-});
-
-// @desc    Update specific user password
-// @route   PUT /api/v1/users/:id
-// @access  Private
-exports.updateUserPassword = asyncHandler(async (req, res, next) => {
   const document = await User.findByIdAndUpdate(
     req.params.id,
     { password: await bcrypt.hash(req.body.password, 12) },
@@ -94,9 +76,8 @@ exports.updateUserPassword = asyncHandler(async (req, res, next) => {
   );
 
   if (!document) {
-    return next(new ApiErorr(`No document for this id ${req.params.id}`, 404));
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
   }
-
   res.status(200).json({ data: document });
 });
 

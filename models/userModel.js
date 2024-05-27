@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    passwordChangedAt: Date,
     phone: String,
     profileImg: String,
     password: {
